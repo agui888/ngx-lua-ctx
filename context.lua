@@ -19,21 +19,24 @@ local req = {
     end,
 
     get_query = function()
-        if not ctx._query then
+        if not cache.query then
             local qs = ngx.req.get_uri_args()
             for k, v in pairs(qs) do
                 if type(v) == 'table' then
                     qs[k] = v[#v]
                 end
             end
-            ctx._query = qs
+            cache.query = qs
         end
-        return ctx._query
+        return cache.query
     end,
     
     get_ips = function()
-        local val = ctx.get('X-Forwarded-For') or ''
-        return _.split(val, ' *, *')
+        local val = ctx.get('X-Forwarded-For')
+        if val then
+            return _.split(val, ' *, *')
+        end
+        return {}
     end,
 
     get_ip = function()
@@ -70,12 +73,12 @@ local res = {
         ngx.redirect(...)
     end,
 
-    set = function(k, v)
+    set = function(k, v) -- need to know if has written
         ngx.header[k] = v -- response, don't confuse
     end,
 
     remove = function(k)
-        ngx.req.clear_header(k)
+        ngx.header[k] = nil
     end
    
 }
@@ -100,8 +103,9 @@ local proto = {
 
     on = function(ev, fn)
         if type(ev) == 'string' and type(fn) == 'function' then
-            if not ctx.event[ev] then
-                ctx.event[ev] = []
+            local event = ctx.event
+            if not event[ev] then
+                event[ev] = {}
             end
             local arr = event[ev]
             if not _.has(arr, fn) then
@@ -114,28 +118,33 @@ local proto = {
 _.extend(proto, req, res)
 
 local getter = function(ctx, k)
-    k = 'get_' .. k
-    if type(proto[k]) == 'function' then
-        return proto[k]()
+    local fn = proto['get_' .. k]
+    if type(fn) == 'function' then
+        return fn()
     end
+    return cache[k]
 end
 
 local setter = function(ctx, k, v)
-    k = 'set_' .. k
-    if type(proto[k]) == 'function' then
-        proto[k](v)
+    local fn = proto['set_' .. k]
+    if type(fn) == 'function' then
+        fn(v)
+    else
+        cache[k] = v -- dirty
     end
 end
 
-return function(_ctx)
-    ctx = _ctx
-    setmetatable(_ctx, {
+return function(raw)
+    ctx = raw
+
+    for k, v in pairs(proto) do
+        if _.indexOf(k, '_') ~= 4 then
+            ctx[k] = v
+        end
+    end
+
+    setmetatable(ctx, {
         __index = getter,
         __newindex = setter
     })
-    for k, v in proto do
-        if not _.has(k, '_') then
-            ctx[k] = proto[v]
-        end
-    end
 end
