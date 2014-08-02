@@ -9,7 +9,6 @@ cp test/test.lua /usr/local/openresty/nginx/test.lua
 
 /usr/local/openresty/nginx/sbin/nginx
 
-curl -s 'localhost/basic?a=1&b=2'  -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"
-
-#[ "$RET" == "test ok" ]
-#echo $RET
+RET=`curl -s 'localhost/basic?a=1&b=2'  -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"`
+echo $RET
+[ "$RET" == "test ok" ]
