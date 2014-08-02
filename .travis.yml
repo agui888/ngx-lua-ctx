@@ -8,7 +8,9 @@ install:
     - wget http://openresty.org/download/${NGX}.tar.gz
     - tar zxvf ${NGX}.tar.gz
     - cd ${NGX}
-    - sudo ./configure && make -j8 && make install
+    - sudo ./configure
+    - sudo make
+    - sudo make install
 
 script:
     - ls /usr/local/openresty
