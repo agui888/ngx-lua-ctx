@@ -54,6 +54,10 @@ local res = {
         return ngx.header['Content-Type']
     end,
 
+    set_body = function(x)
+        -- todo, most important and should flag it has sent   
+    end,
+
     set_status = function(v)
         ngx.status = v
     end,
@@ -129,4 +133,9 @@ return function(_ctx)
         __index = getter,
         __newindex = setter
     })
+    for k, v in proto do
+        if not _.has(k, '_') then
+            ctx[k] = proto[v]
+        end
+    end
 end
