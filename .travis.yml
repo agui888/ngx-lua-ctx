@@ -15,4 +15,3 @@ install:
 
 script:
     - sudo bash test/init.sh
-    - echo test ok
