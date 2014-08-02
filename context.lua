@@ -47,7 +47,7 @@ local req = {
 
 local res = {
     set_type = function(v)
-        ngx.header['Content-Type'] = v
+        ctx.set('Content-Type', v)
     end,
 
     get_type = function()
@@ -67,7 +67,7 @@ local res = {
     end,
 
     set = function(k, v)
-        ngx.req.set_header(k, v)
+        ngx.header[k] = v -- response, don't confuse
     end,
 
     remove = function(k)
