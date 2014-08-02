@@ -1,0 +1,11 @@
+language: erlang
+
+install:
+    - apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl make
+    - wget http://openresty.org/download/ngx_openresty-1.7.0.1.tar.gz
+    - tar zxvf ngx_openresty*.tar.gz
+    - cd ngx_openresty*.tar.gz
+    - ./configure && make -j8 && make install
+
+script:
+    - ls /usr/local/openresty
