@@ -11,6 +11,7 @@ install:
     - sudo ./configure
     - sudo make
     - sudo make install
+    - cd ..
 
 script:
     - ls /usr/local/openresty
