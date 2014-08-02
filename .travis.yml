@@ -14,4 +14,5 @@ install:
     - cd ..
 
 script:
-    - ls /usr/local/openresty
+    - sudo bash test/init.sh
+    - echo test ok
