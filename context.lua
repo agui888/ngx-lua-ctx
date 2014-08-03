@@ -56,10 +56,10 @@ local res = {
     get_type = function()
         return ngx.header['Content-Type']
     end,
-
+    --[[
     set_body = function(x)
         -- todo, most important and should flag it has sent   
-    end,
+    end,]]
 
     set_status = function(v)
         ngx.status = v
