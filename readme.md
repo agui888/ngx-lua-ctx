@@ -4,6 +4,13 @@ ngx-lua-ctx
 
 simple request context sugar like [koa](https://github.com/koajs/koa)
 
+Install
+---
+
+```bash
+$ wget --no-check-certificate https://raw.githubusercontent.com/chunpu/ngx-lua-ctx/master/context.lua
+```
+
 Usage
 ---
 
