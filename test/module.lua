@@ -1,3 +1,3 @@
-require 'context'(ngx.ctx)
+local ctx = require 'context'(ngx.ctx)
 
-require 'module2'()
+require 'module2'(ctx)

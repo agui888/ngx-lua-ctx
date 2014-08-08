@@ -9,13 +9,31 @@ return function(ctx)
         end,
 
         get_url = function()
+            return ngx.var.uri
+        end,
+
+        get_originalUrl = function()
+            return ngx.var.request_uri
         end,
 
         get_method = function()
-            return ngx.req.get_method()
+            return ngx.var.request_method
         end,
 
         get_path = function()
+            return ngx.var.request_filename
+        end,
+
+        get_querystring = function()
+            return ngx.var.args
+        end,
+
+        get_host = function()
+            return ngx.var.host
+        end,
+        
+        get_hostname = function()
+            return ngx.var.hostname
         end,
 
         get_query = function()
@@ -144,4 +162,6 @@ return function(ctx)
         __index = getter,
         __newindex = setter
     })
+    ngx.say(_.dump(ngx.var))
+    return ctx
 end
