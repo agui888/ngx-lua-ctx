@@ -2,6 +2,8 @@ local _ = require 'shim'
 
 return function(ctx)
     local cache = {}
+    
+    ctx = ctx or ngx.ctx
 
     local req = {
         get_header = function()
@@ -12,12 +14,20 @@ return function(ctx)
             return ngx.var.uri
         end,
 
+        set_url = function(...)
+            ngx.req.set_uri(...)
+        end,
+
         get_originalUrl = function()
             return ngx.var.request_uri
         end,
 
         get_method = function()
-            return ngx.var.request_method
+            return ngx.req.get_method()
+        end,
+
+        set_method = function(v)
+            ngx.req.set_method(v)
         end,
 
         get_path = function()
@@ -42,6 +52,8 @@ return function(ctx)
                 for k, v in pairs(qs) do
                     if type(v) == 'table' then
                         qs[k] = v[#v]
+                    elseif v == true then
+                        qs[k] = ''
                     end
                 end
                 cache.query = qs
@@ -162,6 +174,6 @@ return function(ctx)
         __index = getter,
         __newindex = setter
     })
-    ngx.say(_.dump(ngx.var))
+
     return ctx
 end

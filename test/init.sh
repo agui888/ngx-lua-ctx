@@ -11,12 +11,12 @@ cp test/*.lua /usr/local/openresty/nginx/ # entrance
 
 /usr/local/openresty/nginx/sbin/nginx
 
-RET=`curl -s 'localhost/basic?a=1&b=2'  -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"`
+RET=`curl -s 'localhost/basic?a=1&b=2' -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"`
 echo $RET
 [ "$RET" == "test ok" ] && echo test round 1 ok
 
 # ctx should be isolated
-RET2=`curl -s 'localhost/basic?a=1&b=2'  -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"`
+RET2=`curl -s 'localhost/basic?a=1&b=2' -H "Connection: keep-alive" -H "Cache-Control: no-cache" -H "X-Forwarded-For: 1.1.1.1,2.2.2.2,  3.3.3.3"`
 echo $RET2
 [ "$RET2" == "test ok" ] && echo test round 2 ok
 
