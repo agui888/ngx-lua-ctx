@@ -11,11 +11,15 @@ return function(ctx)
         end,
 
         get_url = function()
-            return ngx.var.uri
+            if not cache.url then
+                cache.url = ngx.var.request_uri
+            end
+            return cache.url
         end,
 
         set_url = function(...)
-            ngx.req.set_uri(...)
+            cache.url = ...
+            ngx.req.set_uri(...) -- maybe wrong
         end,
 
         get_originalUrl = function()
@@ -31,7 +35,7 @@ return function(ctx)
         end,
 
         get_path = function()
-            return ngx.var.request_filename
+            return ngx.var.uri
         end,
 
         get_querystring = function()
@@ -39,11 +43,15 @@ return function(ctx)
         end,
 
         get_host = function()
-            return ngx.var.host
+            return ngx.var.host .. ngx.var.server_port
+        end,
+
+        get_protocol = function()
+            return ngx.var.server_protocol
         end,
         
         get_hostname = function()
-            return ngx.var.hostname
+            return ngx.var.host
         end,
 
         get_query = function()
