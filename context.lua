@@ -129,7 +129,7 @@ return function(ctx)
             local arr = ctx.event[ev]
             if arr then
                 _._each(arr, function(fn)
-                    fn(msg)
+                    return fn(msg)
                 end)
             end
         end,
