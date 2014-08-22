@@ -1,7 +1,6 @@
 local _ = require 'shim'
 
 return function(ctx)
-    local cache = {}
     
     ctx = ctx or ngx.ctx
 
@@ -11,14 +10,10 @@ return function(ctx)
         end,
 
         get_url = function()
-            if not cache.url then
-                cache.url = ngx.var.request_uri
-            end
-            return cache.url
+            return ngx.var.request_uri
         end,
 
         set_url = function(...)
-            cache.url = ...
             ngx.req.set_uri(...) -- maybe wrong
         end,
 
@@ -55,7 +50,7 @@ return function(ctx)
         end,
 
         get_query = function()
-            if not cache.query then
+            if not ctx._query then
                 local qs = ngx.req.get_uri_args()
                 for k, v in pairs(qs) do
                     if type(v) == 'table' then
@@ -64,9 +59,9 @@ return function(ctx)
                         qs[k] = ''
                     end
                 end
-                cache.query = qs
+                ctx._query = qs
             end
-            return cache.query
+            return ctx._query
         end,
         
         get_ips = function()
@@ -156,20 +151,21 @@ return function(ctx)
     _.extend(proto, req, res)
 
     local getter = function(ctx, k)
+        local _v = rawget(ctx, k)
+        if _v ~= nil then return _v end
         local fn = proto['get_' .. k]
         if type(fn) == 'function' then
             return fn()
         end
-        return cache[k]
     end
 
     local setter = function(ctx, k, v)
+        local _v = rawget(ctx, k)
         local fn = proto['set_' .. k]
-        if type(fn) == 'function' then
+        if _v == nil and type(fn) == 'function' then
             fn(v)
-        else
-            cache[k] = v -- dirty
         end
+        rawset(ctx, k, v)
     end
 
     for k, v in pairs(proto) do
