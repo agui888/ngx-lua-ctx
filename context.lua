@@ -121,25 +121,21 @@ return function(ctx)
         req = req,
         event = {},
 
-        throw = function(err)
-            ctx.emit('error', err)
+        throw = function(...)
+            ctx.emit('error', ...)
         end,
 
-        emit = function(ev, msg)
-            local arr = ctx.event[ev]
-            if arr then
-                _._each(arr, function(fn)
-                    return fn(msg)
-                end)
-            end
+        emit = function(ev, ...)
+            local tb = {...}
+            _._each(ctx.event[ev], function(fn)
+                return fn(unpack(tb))
+            end)
         end,
 
         on = function(ev, fn)
             if type(ev) == 'string' and type(fn) == 'function' then
                 local event = ctx.event
-                if not event[ev] then
-                    event[ev] = {}
-                end
+                event[ev] = event[ev] or {}
                 local arr = event[ev]
                 if not _.has(arr, fn) then
                     _.push(arr, fn)
