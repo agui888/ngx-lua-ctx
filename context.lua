@@ -1,7 +1,7 @@
 local _ = require 'shim'
 
 return function(ctx)
-    
+
     ctx = ctx or ngx.ctx
 
     local req = {
@@ -44,7 +44,7 @@ return function(ctx)
         get_protocol = function()
             return ngx.var.server_protocol
         end,
-        
+
         get_hostname = function()
             return ngx.var.host
         end,
@@ -63,7 +63,7 @@ return function(ctx)
             end
             return ctx._query
         end,
-        
+
         get_ips = function()
             local val = ctx.get('X-Forwarded-For')
             if val then
@@ -91,7 +91,7 @@ return function(ctx)
         end,
         --[[
         set_body = function(x)
-            -- todo, most important and should flag it has sent   
+            -- todo, most important and should flag it has sent
         end,]]
 
         set_status = function(v)
@@ -101,7 +101,7 @@ return function(ctx)
         get_status = function()
             return ngx.status
         end,
-        
+
         redirect = function(...)
             ngx.redirect(...)
         end,
@@ -113,7 +113,7 @@ return function(ctx)
         remove = function(k)
             ngx.header[k] = nil
         end
-       
+
     }
 
     local proto = {
