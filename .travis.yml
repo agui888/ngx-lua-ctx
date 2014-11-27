@@ -14,4 +14,4 @@ install:
     - cd ..
 
 script:
-    - sudo bash test/init.sh
+    - sudo bash test/init.sh && echo pass

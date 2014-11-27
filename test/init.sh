@@ -29,3 +29,8 @@ echo $RET3
 RET4=`curl -s 'localhost/module'`
 echo $RET4
 [ "$RET4" == "ok" ]
+
+# ctx should always send once
+RET5=`curl -s 'localhost/send'`
+echo $RET5
+[ "$RET5" == "12nil45" ]

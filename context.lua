@@ -3,6 +3,7 @@ local _ = require 'shim'
 return function(ctx)
 
     ctx = ctx or ngx.ctx
+    ctx._body = {}
 
     local req = {
         get_header = function()
@@ -83,19 +84,19 @@ return function(ctx)
 
     local res = {
         set_type = function(v)
-            ctx.set('Content-Type', v)
+            if not ctx.isSent then
+                ctx.set('Content-Type', v)
+            end
         end,
 
         get_type = function()
             return ngx.header['Content-Type']
         end,
-        --[[
-        set_body = function(x)
-            -- todo, most important and should flag it has sent
-        end,]]
 
         set_status = function(v)
-            ngx.status = v
+            if not ctx.isSent then
+                ngx.status = v
+            end
         end,
 
         get_status = function()
@@ -106,8 +107,10 @@ return function(ctx)
             ngx.redirect(...)
         end,
 
-        set = function(k, v) -- need to know if has written
-            ngx.header[k] = v -- response, don't confuse
+        set = function(k, v)
+            if not ctx.isSent then
+                ngx.header[k] = v -- response, don't confuse
+            end
         end,
 
         remove = function(k)
@@ -117,22 +120,22 @@ return function(ctx)
     }
 
     local proto = {
-        res = res,
-        req = req,
-        event = {},
+          res = res
+        , req = req
+        , event = {}
 
-        throw = function(...)
+        , throw = function(...)
             ctx.emit('error', ...)
-        end,
+        end
 
-        emit = function(ev, ...)
+        , emit = function(ev, ...)
             local tb = {...}
             _._each(ctx.event[ev], function(fn)
                 return fn(unpack(tb))
             end)
-        end,
+        end
 
-        on = function(ev, fn)
+        , on = function(ev, fn)
             if type(ev) == 'string' and type(fn) == 'function' then
                 local event = ctx.event
                 event[ev] = event[ev] or {}
@@ -141,7 +144,24 @@ return function(ctx)
                     _.push(arr, fn)
                 end
             end
-        end,
+        end
+
+        , add = function(val)
+            if not ctx.isSent then
+                table.insert(ctx._body, tostring(val))
+            end
+        end
+
+        , send = function(val)
+            -- always send once
+            if ctx.isSent then return end
+            if val then
+                ctx.add(val)
+            end
+            ctx.isSent = true
+            ngx.say(table.concat(ctx._body, ''))
+            ngx.eof()
+        end
     }
 
     _.extend(proto, req, res)
