@@ -33,4 +33,4 @@ echo $RET4
 # ctx should always send once
 RET5=`curl -s 'localhost/send'`
 echo $RET5
-[ "$RET5" == "12nil45" ]
+[ "$RET5" == "1245" ]
