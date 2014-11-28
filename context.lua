@@ -6,51 +6,51 @@ return function(ctx)
     ctx._body = {}
 
     local req = {
-        get_header = function()
+          get_header = function()
             return ngx.req.get_headers()
-        end,
+        end
 
-        get_url = function()
+        , get_url = function()
             return ngx.var.request_uri
-        end,
+        end
 
-        set_url = function(...)
+        , set_url = function(...)
             ngx.req.set_uri(...) -- maybe wrong
-        end,
+        end
 
-        get_originalUrl = function()
+        , get_originalUrl = function()
             return ngx.var.request_uri
-        end,
+        end
 
-        get_method = function()
+        , get_method = function()
             return ngx.req.get_method()
-        end,
+        end
 
-        set_method = function(v)
+        , set_method = function(v)
             ngx.req.set_method(v)
-        end,
+        end
 
-        get_path = function()
+        , get_path = function()
             return ngx.var.uri
-        end,
+        end
 
-        get_querystring = function()
+        , get_querystring = function()
             return ngx.var.args
-        end,
+        end
 
-        get_host = function()
+        , get_host = function()
             return ngx.var.host .. ngx.var.server_port
-        end,
+        end
 
-        get_protocol = function()
+        , get_protocol = function()
             return ngx.var.server_protocol
-        end,
+        end
 
-        get_hostname = function()
+        , get_hostname = function()
             return ngx.var.host
-        end,
+        end
 
-        get_query = function()
+        , get_query = function()
             if not ctx._query then
                 local qs = ngx.req.get_uri_args()
                 for k, v in pairs(qs) do
@@ -63,57 +63,57 @@ return function(ctx)
                 ctx._query = qs
             end
             return ctx._query
-        end,
+        end
 
-        get_ips = function()
+        , get_ips = function()
             local val = ctx.get('X-Forwarded-For')
             if val then
                 return _.split(val, ' *, *')
             end
             return {}
-        end,
+        end
 
-        get_ip = function()
+        , get_ip = function()
             return ctx.ips[1] or ngx.var.remote_addr
-        end,
+        end
 
-        get = function(k)
+        , get = function(k)
             return ctx.header[k]
-        end,
+        end
     }
 
     local res = {
-        set_type = function(v)
-            if not ctx.isSent then
+          set_type = function(v)
+            if not ngx.headers_sent then
                 ctx.set('Content-Type', v)
             end
-        end,
+        end
 
-        get_type = function()
+        , get_type = function()
             return ngx.header['Content-Type']
-        end,
+        end
 
-        set_status = function(v)
-            if not ctx.isSent then
+        , set_status = function(v)
+            if not ngx.headers_sent then
                 ngx.status = v
             end
-        end,
+        end
 
-        get_status = function()
+        , get_status = function()
             return ngx.status
-        end,
+        end
 
-        redirect = function(...)
+        , redirect = function(...)
             ngx.redirect(...)
-        end,
+        end
 
-        set = function(k, v)
-            if not ctx.isSent then
+        , set = function(k, v)
+            if not ngx.headers_sent then
                 ngx.header[k] = v -- response, don't confuse
             end
-        end,
+        end
 
-        remove = function(k)
+        , remove = function(k)
             ngx.header[k] = nil
         end
 
@@ -148,7 +148,7 @@ return function(ctx)
 
         , add = function(val)
             if not ctx.isSent then
-                table.insert(ctx._body, tostring(val))
+                _.push(ctx._body, val)
             end
         end
 
@@ -159,7 +159,12 @@ return function(ctx)
                 ctx.add(val)
             end
             ctx.isSent = true
-            ngx.say(table.concat(ctx._body, ''))
+            ngx.print(_.join(ctx._body, ''))
+        end
+
+        , eof = function(val)
+            ctx.send(val)
+            ngx.flush(true) -- sync
             ngx.eof()
         end
     }
